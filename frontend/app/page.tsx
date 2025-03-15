@@ -39,10 +39,8 @@ export default function Home() {
         Object.assign(payload, { anthropicApiKey: data.anthropicApiKey });
       }
       
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/generate-resume`,
-        payload
-      );
+      // Use local API routes instead of external backend
+      const response = await axios.post('/api/generate-resume', payload);
       
       setResults({
         tailoredResume: response.data.tailoredResume,

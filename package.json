@@ -1,0 +1,37 @@
+{
+  "name": "linkedin-resume-tailor",
+  "version": "1.0.0",
+  "description": "AI-powered resume customization tool for job applications",
+  "main": "frontend/app/page.tsx",
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd frontend && npm run start",
+    "lint": "cd frontend && npm run lint",
+    "clean": "rm -rf .next frontend/.next node_modules frontend/node_modules"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "python": ">=3.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/linkedin-resume-tailor.git"
+  },
+  "keywords": [
+    "resume",
+    "linkedin",
+    "ai",
+    "job-search",
+    "llm",
+    "anthropic",
+    "claude",
+    "nextjs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/linkedin-resume-tailor/issues"
+  },
+  "homepage": "https://github.com/yourusername/linkedin-resume-tailor#readme"
+} 

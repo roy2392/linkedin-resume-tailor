@@ -50,9 +50,9 @@ const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => {
         ? watch('openaiApiKey') 
         : watch('anthropicApiKey');
       
-      // Call the validation endpoint
+      // Call the validation endpoint using local API route
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/validate-key`,
+        '/api/validate-key',
         { provider, apiKey }
       );
       

@@ -117,6 +117,94 @@ def validate_openai_key(api_key):
         print(f"Exception in validate_openai_key: {str(e)}")
         return False, f"Error validating API key: {str(e)}"
 
+def generate_resume_with_anthropic(api_key, job_posting_url, linkedin_url, personal_writeup):
+    """Generate a tailored resume using the Anthropic API directly."""
+    try:
+        headers = {
+            "x-api-key": api_key,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json"
+        }
+        
+        # Construct the prompt
+        prompt = f"""
+        I need to create a tailored resume for a job application. Please help me optimize my resume based on the following information:
+
+        JOB POSTING URL: {job_posting_url}
+
+        MY LINKEDIN PROFILE: {linkedin_url}
+
+        MY PERSONAL WRITEUP:
+        {personal_writeup}
+
+        I want you to:
+        1. Analyze the job posting to identify key skills and requirements
+        2. Review my LinkedIn profile and personal writeup
+        3. Create a tailored resume that highlights my relevant skills and experiences for this specific job
+        4. Also generate a list of potential interview questions I should prepare for
+
+        Please format your response as:
+        
+        ## TAILORED RESUME
+        [The complete tailored resume in markdown format]
+        
+        ## INTERVIEW PREPARATION
+        [List of interview questions and talking points I should prepare]
+        """
+        
+        # Make the API request
+        response = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers=headers,
+            json={
+                "model": "claude-3-opus-20240229",
+                "max_tokens": 4000,
+                "messages": [{"role": "user", "content": prompt}]
+            }
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            content = result.get('content', [])
+            response_text = ""
+            
+            # Extract text from the response
+            for item in content:
+                if item.get('type') == 'text':
+                    response_text += item.get('text', '')
+            
+            # Split the response
+            parts = response_text.split('## INTERVIEW PREPARATION')
+            
+            if len(parts) == 2:
+                tailored_resume = parts[0].replace('## TAILORED RESUME', '').strip()
+                interview_materials = parts[1].strip()
+                
+                return {
+                    "status": "success",
+                    "tailoredResume": tailored_resume,
+                    "interviewMaterials": interview_materials
+                }
+            else:
+                return {
+                    "status": "partial_success",
+                    "message": "Response format was unexpected",
+                    "full_response": response_text
+                }
+        else:
+            print(f"Anthropic API Error: {response.status_code} - {response.text}")
+            return {
+                "status": "error",
+                "message": f"Error from Anthropic API: {response.text}"
+            }
+            
+    except Exception as e:
+        print(f"Error in generate_resume_with_anthropic: {str(e)}")
+        return {
+            "status": "error",
+            "message": f"Error generating resume: {str(e)}"
+        }
+
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*", "methods": ["GET", "POST", "OPTIONS"], "allow_headers": ["Content-Type", "Authorization"]}})
 
@@ -185,13 +273,23 @@ def generate_resume():
     try:
         data = request.json
         
-        # Extract key provider information
+        # Extract all necessary data
         llm_provider = data.get('llmProvider', 'openai')  # Default to OpenAI if not specified
         anthropic_api_key = data.get('anthropicApiKey')
         openai_api_key = data.get('openaiApiKey')
+        job_posting_url = data.get('jobPostingUrl')
+        linkedin_url = data.get('linkedinUrl')
+        personal_writeup = data.get('personalWriteup')
         
         # Log the selected provider for debugging
         print(f"Selected LLM provider: {llm_provider}")
+        
+        # Check for required fields
+        if not job_posting_url or not linkedin_url or not personal_writeup:
+            return jsonify({
+                "error": "Missing required data",
+                "message": "Please provide job posting URL, LinkedIn URL, and personal writeup"
+            }), 400
         
         # Validate that we have the appropriate API key
         if llm_provider == 'anthropic' and not anthropic_api_key:
@@ -205,8 +303,9 @@ def generate_resume():
                 "message": "Please provide an OpenAI API key"
             }), 400
         
-        # Additional validation for Anthropic
+        # Handle Anthropic
         if llm_provider == 'anthropic':
+            # Validate the key
             is_valid, error_message = validate_anthropic_key(anthropic_api_key)
             if not is_valid:
                 return jsonify({
@@ -214,10 +313,28 @@ def generate_resume():
                     "message": error_message
                 }), 400
             
-            return jsonify({
-                "error": "Provider not fully supported",
-                "message": "The application is currently being updated to support Anthropic as a provider. Your API key is valid, but we can't generate resumes with Anthropic yet. Please use OpenAI provider instead, or check back later for Anthropic support."
-            }), 400
+            # Generate resume with Anthropic
+            result = generate_resume_with_anthropic(
+                anthropic_api_key,
+                job_posting_url,
+                linkedin_url,
+                personal_writeup
+            )
+            
+            if result.get("status") == "success":
+                return jsonify({
+                    "status": "success",
+                    "tailoredResume": result.get("tailoredResume"),
+                    "interviewMaterials": result.get("interviewMaterials"),
+                    "provider": "anthropic"
+                }), 200
+            else:
+                return jsonify({
+                    "error": "Resume generation failed",
+                    "message": result.get("message", "Unknown error occurred"),
+                    "details": result
+                }), 500
+                
         elif llm_provider == 'openai':
             # Perform validation for OpenAI
             is_valid, error_message = validate_openai_key(openai_api_key)
@@ -227,24 +344,12 @@ def generate_resume():
                     "message": error_message
                 }), 400
                 
-            # For the OpenAI API case, set the necessary environment variables
-            # This is for temporary maintenance mode
-            try:
-                os.environ["OPENAI_API_KEY"] = openai_api_key
-                os.environ["OPENAI_MODEL_NAME"] = "gpt-3.5-turbo"
-                
-                # TODO: When system is ready for actual resume generation,
-                # replace this with the real implementation
-                return jsonify({
-                    "error": "System under maintenance",
-                    "message": "The resume generation system is currently under maintenance to fix issues with LLM integration. Your OpenAI API key is valid, but we can't generate resumes at the moment. Please try again later."
-                }), 503
-            except Exception as env_error:
-                print(f"Error setting environment variables: {str(env_error)}")
-                return jsonify({
-                    "error": "Server configuration error",
-                    "message": f"Could not configure the server with your API key: {str(env_error)}"
-                }), 500
+            # We're not implementing OpenAI resume generation directly in this version
+            # since you mentioned you're only using Anthropic API key
+            return jsonify({
+                "error": "Provider not fully supported",
+                "message": "The application is currently being updated to support OpenAI for direct resume generation. Please use the Anthropic provider instead."
+            }), 400
         else:
             return jsonify({
                 "error": "Invalid provider",

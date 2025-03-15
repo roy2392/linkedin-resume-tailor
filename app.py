@@ -66,6 +66,11 @@ def validate_anthropic_key(api_key):
 def validate_openai_key(api_key):
     """Validate the OpenAI API key by making a simple request."""
     try:
+        # Check if the API key has the expected format
+        if not (api_key.startswith('sk-') or api_key.startswith('sk-proj-')):
+            print(f"Invalid OpenAI API key format: Key should start with 'sk-'")
+            return False, "Invalid API key format. OpenAI API keys typically start with 'sk-'"
+            
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
@@ -93,7 +98,15 @@ def validate_openai_key(api_key):
             try:
                 error_data = response.json()
                 error_message = error_data.get('error', {}).get('message', 'Invalid API key')
+                error_type = error_data.get('error', {}).get('type', '')
                 
+                # Provide more specific error messages based on error type
+                if 'authentication' in error_type.lower() or 'auth' in error_type.lower() or 'api_key' in error_type.lower():
+                    error_message = f"Authentication error: {error_message}. Please check your API key."
+                elif 'rate_limit' in error_type.lower():
+                    error_message = f"Rate limit exceeded: {error_message}. Please try again later."
+                
+                print(f"OpenAI API Error Type: {error_type}")
                 print(f"OpenAI API Error Message: {error_message}")
                 
                 return False, error_message
@@ -206,7 +219,7 @@ def generate_resume():
                 "message": "The application is currently being updated to support Anthropic as a provider. Your API key is valid, but we can't generate resumes with Anthropic yet. Please use OpenAI provider instead, or check back later for Anthropic support."
             }), 400
         elif llm_provider == 'openai':
-            # Perform validation for OpenAI if needed
+            # Perform validation for OpenAI
             is_valid, error_message = validate_openai_key(openai_api_key)
             if not is_valid:
                 return jsonify({
@@ -214,10 +227,24 @@ def generate_resume():
                     "message": error_message
                 }), 400
                 
-            return jsonify({
-                "error": "System under maintenance",
-                "message": "The resume generation system is currently under maintenance to fix issues with LLM integration. Your OpenAI API key is valid, but we can't generate resumes at the moment. Please try again later."
-            }), 503
+            # For the OpenAI API case, set the necessary environment variables
+            # This is for temporary maintenance mode
+            try:
+                os.environ["OPENAI_API_KEY"] = openai_api_key
+                os.environ["OPENAI_MODEL_NAME"] = "gpt-3.5-turbo"
+                
+                # TODO: When system is ready for actual resume generation,
+                # replace this with the real implementation
+                return jsonify({
+                    "error": "System under maintenance",
+                    "message": "The resume generation system is currently under maintenance to fix issues with LLM integration. Your OpenAI API key is valid, but we can't generate resumes at the moment. Please try again later."
+                }), 503
+            except Exception as env_error:
+                print(f"Error setting environment variables: {str(env_error)}")
+                return jsonify({
+                    "error": "Server configuration error",
+                    "message": f"Could not configure the server with your API key: {str(env_error)}"
+                }), 500
         else:
             return jsonify({
                 "error": "Invalid provider",

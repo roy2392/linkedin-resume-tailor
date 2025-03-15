@@ -7,11 +7,13 @@ import rehypeSanitize from 'rehype-sanitize';
 interface OutputDisplayProps {
   tailoredResume: string;
   interviewMaterials: string;
+  provider?: 'openai' | 'anthropic';
 }
 
 const OutputDisplay: React.FC<OutputDisplayProps> = ({
   tailoredResume,
   interviewMaterials,
+  provider = 'openai',
 }) => {
   const [activeTab, setActiveTab] = useState<'resume' | 'interview'>('resume');
 
@@ -22,7 +24,7 @@ const OutputDisplay: React.FC<OutputDisplayProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-between items-center mb-6">
         <div className="glass-effect-subtle inline-flex rounded-full p-1">
           <button
             onClick={() => setActiveTab('resume')}
@@ -44,6 +46,17 @@ const OutputDisplay: React.FC<OutputDisplayProps> = ({
           >
             Interview Preparation
           </button>
+        </div>
+        
+        <div className="flex items-center text-xs">
+          <span className="text-tertiary mr-2">Generated with:</span>
+          <span className={`px-2 py-1 rounded-md ${
+            provider === 'anthropic' 
+              ? 'bg-green-900/30 text-green-300' 
+              : 'bg-blue-900/30 text-blue-300'
+          }`}>
+            {provider === 'anthropic' ? 'Anthropic Claude' : 'OpenAI GPT'}
+          </span>
         </div>
       </div>
 

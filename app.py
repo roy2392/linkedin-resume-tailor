@@ -26,23 +26,41 @@ def generate_resume():
     try:
         data = request.json
         
-        # Extract API keys and URLs
+        # Extract API keys, URLs and LLM provider
+        llm_provider = data.get('llmProvider', 'openai')  # Default to OpenAI if not specified
         openai_api_key = data.get('openaiApiKey')
+        anthropic_api_key = data.get('anthropicApiKey')
         serper_api_key = data.get('serperApiKey')
         job_posting_url = data.get('jobPostingUrl')
         linkedin_url = data.get('linkedinUrl')
         personal_writeup = data.get('personalWriteup')
         
         # Validate inputs
-        if not all([openai_api_key, serper_api_key, job_posting_url, linkedin_url, personal_writeup]):
+        if not serper_api_key or not job_posting_url or not linkedin_url or not personal_writeup:
             return jsonify({
                 "error": "Missing required fields", 
                 "message": "Please provide all required information"
             }), 400
             
-        # Set environment variables
-        os.environ["OPENAI_API_KEY"] = openai_api_key
-        os.environ["OPENAI_MODEL_NAME"] = 'gpt-4-turbo'
+        # Validate that the appropriate API key is provided based on provider
+        if llm_provider == 'openai' and not openai_api_key:
+            return jsonify({
+                "error": "Missing OpenAI API key", 
+                "message": "Please provide an OpenAI API key"
+            }), 400
+        elif llm_provider == 'anthropic' and not anthropic_api_key:
+            return jsonify({
+                "error": "Missing Anthropic API key", 
+                "message": "Please provide an Anthropic API key"
+            }), 400
+            
+        # Set environment variables based on provider
+        if llm_provider == 'openai':
+            os.environ["OPENAI_API_KEY"] = openai_api_key
+            os.environ["OPENAI_MODEL_NAME"] = 'gpt-4-turbo'
+        elif llm_provider == 'anthropic':
+            os.environ["ANTHROPIC_API_KEY"] = anthropic_api_key
+            
         os.environ["SERPER_API_KEY"] = serper_api_key
         
         # Create temporary directory to store resume file
@@ -58,12 +76,13 @@ def generate_resume():
             read_resume = FileReadTool(file_path=resume_path)
             semantic_search_resume = MDXSearchTool(mdx=resume_path)
             
-            # Create agents
+            # Create agents with the specified LLM provider
             researcher = Agent(
                 role="Tech Job Researcher",
                 goal="Make sure to do amazing analysis on job posting to help job applicants",
                 tools=[scrape_tool, search_tool],
                 verbose=True,
+                llm_provider=llm_provider,  # Set LLM provider
                 backstory=(
                     "As a Job Researcher, your prowess in navigating and extracting critical "
                     "information from job postings is unmatched. Your skills help pinpoint the necessary "
@@ -77,6 +96,7 @@ def generate_resume():
                 goal="Do increditble research on job applicants to help them stand out in the job market",
                 tools=[scrape_tool, search_tool, read_resume, semantic_search_resume],
                 verbose=True,
+                llm_provider=llm_provider,  # Set LLM provider
                 backstory=(
                     "Equipped with analytical prowess, you dissect and synthesize information "
                     "from diverse sources to craft comprehensive personal and professional profiles, "
@@ -89,6 +109,7 @@ def generate_resume():
                 goal="Find all the best ways to make a resume stand out in the job market.",
                 tools=[scrape_tool, search_tool, read_resume, semantic_search_resume],
                 verbose=True,
+                llm_provider=llm_provider,  # Set LLM provider
                 backstory=(
                     "With a strategic mind and an eye for detail, you excel at refining resumes "
                     "to highlight the most relevant skills and experiences, ensuring they "
@@ -101,6 +122,7 @@ def generate_resume():
                 goal="Create interview questions and talking points based on the resume and job requirements",
                 tools=[scrape_tool, search_tool, read_resume, semantic_search_resume],
                 verbose=True,
+                llm_provider=llm_provider,  # Set LLM provider
                 backstory=(
                     "Your role is crucial in anticipating the dynamics of interviews. "
                     "With your ability to formulate key questions and talking points, "
@@ -203,7 +225,8 @@ def generate_resume():
             return jsonify({
                 "status": "success",
                 "tailoredResume": tailored_resume,
-                "interviewMaterials": interview_materials
+                "interviewMaterials": interview_materials,
+                "provider": llm_provider
             }), 200
             
     except Exception as e:

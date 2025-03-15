@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import axios from 'axios';
+import { FiZap, FiCpu } from 'react-icons/fi';
 
 interface InputFormProps {
   onSubmit: (data: FormData) => void;
@@ -14,11 +15,22 @@ export interface FormData {
   personalWriteup: string;
   openaiApiKey: string;
   serperApiKey: string;
+  anthropicApiKey: string;
+  llmProvider: 'openai' | 'anthropic';
 }
 
 const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => {
   const [expandedSection, setExpandedSection] = useState<'profile' | 'api' | null>(null);
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
+  const [llmProvider, setLlmProvider] = useState<'openai' | 'anthropic'>('openai');
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<FormData>({
+    defaultValues: {
+      llmProvider: 'openai'
+    }
+  });
+
+  useEffect(() => {
+    setValue('llmProvider', llmProvider);
+  }, [llmProvider, setValue]);
 
   const handleFormSubmit: SubmitHandler<FormData> = (data) => {
     onSubmit(data);
@@ -144,26 +156,83 @@ const InputForm: React.FC<InputFormProps> = ({ onSubmit, isLoading }) => {
                 Your keys are never stored on our servers and are only used for this specific request.
               </p>
               
-              <div>
-                <label htmlFor="openaiApiKey" className="block text-sm font-medium text-yellow-200 mb-1">
-                  OpenAI API Key <span className="text-red-400">*</span>
+              {/* LLM Provider Selection */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-yellow-200 mb-2">
+                  Select AI Provider
                 </label>
-                <input
-                  id="openaiApiKey"
-                  type="password"
-                  className="apple-input w-full"
-                  placeholder="sk-..."
-                  {...register("openaiApiKey", { 
-                    required: "OpenAI API key is required",
-                    pattern: {
-                      value: /^sk-/,
-                      message: "Please enter a valid OpenAI API key starting with 'sk-'"
-                    }
-                  })}
-                />
-                {errors.openaiApiKey && <p className="mt-1 text-sm text-red-400">{errors.openaiApiKey.message}</p>}
-                <p className="mt-1 text-xs text-lime-300">Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">OpenAI</a></p>
+                <div className="flex bg-gray-900/30 rounded-lg p-1 max-w-xs">
+                  <button
+                    type="button"
+                    className={`flex items-center space-x-2 py-2 px-4 rounded-md transition-all ${
+                      llmProvider === 'openai'
+                        ? 'bg-primary text-white'
+                        : 'text-tertiary hover:text-secondary'
+                    }`}
+                    onClick={() => setLlmProvider('openai')}
+                  >
+                    <FiZap className={llmProvider === 'openai' ? 'text-yellow-300' : 'text-tertiary'} />
+                    <span>OpenAI</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`flex items-center space-x-2 py-2 px-4 rounded-md transition-all ${
+                      llmProvider === 'anthropic'
+                        ? 'bg-primary text-white'
+                        : 'text-tertiary hover:text-secondary'
+                    }`}
+                    onClick={() => setLlmProvider('anthropic')}
+                  >
+                    <FiCpu className={llmProvider === 'anthropic' ? 'text-green-300' : 'text-tertiary'} />
+                    <span>Anthropic</span>
+                  </button>
+                </div>
               </div>
+              
+              {/* Conditional API Key Input Fields */}
+              {llmProvider === 'openai' ? (
+                <div>
+                  <label htmlFor="openaiApiKey" className="block text-sm font-medium text-yellow-200 mb-1">
+                    OpenAI API Key <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    id="openaiApiKey"
+                    type="password"
+                    className="apple-input w-full"
+                    placeholder="sk-..."
+                    {...register("openaiApiKey", { 
+                      required: llmProvider === 'openai' ? "OpenAI API key is required" : false,
+                      pattern: {
+                        value: /^sk-/,
+                        message: "Please enter a valid OpenAI API key starting with 'sk-'"
+                      }
+                    })}
+                  />
+                  {errors.openaiApiKey && <p className="mt-1 text-sm text-red-400">{errors.openaiApiKey.message}</p>}
+                  <p className="mt-1 text-xs text-lime-300">Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">OpenAI</a></p>
+                </div>
+              ) : (
+                <div>
+                  <label htmlFor="anthropicApiKey" className="block text-sm font-medium text-yellow-200 mb-1">
+                    Anthropic API Key <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    id="anthropicApiKey"
+                    type="password"
+                    className="apple-input w-full"
+                    placeholder="sk_ant-..."
+                    {...register("anthropicApiKey", { 
+                      required: llmProvider === 'anthropic' ? "Anthropic API key is required" : false,
+                      pattern: {
+                        value: /^sk_ant-/,
+                        message: "Please enter a valid Anthropic API key starting with 'sk_ant-'"
+                      }
+                    })}
+                  />
+                  {errors.anthropicApiKey && <p className="mt-1 text-sm text-red-400">{errors.anthropicApiKey.message}</p>}
+                  <p className="mt-1 text-xs text-lime-300">Get your API key from <a href="https://console.anthropic.com/account/keys" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Anthropic</a></p>
+                </div>
+              )}
               
               <div>
                 <label htmlFor="serperApiKey" className="block text-sm font-medium text-yellow-200 mb-1">

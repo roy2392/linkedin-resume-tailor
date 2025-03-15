@@ -10,18 +10,18 @@
   --primary-color: rgb(96, 87, 235);
   --primary-light: rgb(134, 127, 247);
   --primary-dark: rgb(84, 68, 214);
-  --text-primary: rgb(224, 240, 255);
-  --text-secondary: rgb(176, 196, 222);
-  --text-tertiary: rgb(132, 151, 176);
-  --glass-background: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.15);
-  --glass-background-subtle: rgba(255, 255, 255, 0.05);
-  --glass-border-subtle: rgba(255, 255, 255, 0.1);
+  --text-primary: rgb(244, 250, 255);
+  --text-secondary: rgb(196, 226, 252);
+  --text-tertiary: rgb(152, 181, 206);
+  --glass-background: rgba(20, 20, 40, 0.9);
+  --glass-border: rgba(93, 93, 255, 0.4);
+  --glass-background-subtle: rgba(30, 30, 50, 0.85);
+  --glass-border-subtle: rgba(93, 93, 255, 0.3);
   --btn-primary-start: rgb(83, 68, 214);
   --btn-primary-end: rgb(96, 87, 235);
   --btn-hover-start: rgb(98, 85, 231);
   --btn-hover-end: rgb(113, 104, 252);
-  --card-background: rgba(15, 23, 42, 0.7);
+  --card-background: rgba(15, 23, 42, 0.9);
   --theme-toggle-from: rgba(40, 40, 120, 0.6);
   --theme-toggle-to: rgba(100, 40, 200, 0.6);
   --theme-toggle-glow: rgba(100, 120, 255, 0.2);
@@ -38,10 +38,10 @@
   --text-primary: rgb(15, 23, 42);
   --text-secondary: rgb(51, 65, 85);
   --text-tertiary: rgb(100, 116, 139);
-  --glass-background: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(209, 213, 219, 0.5);
-  --glass-background-subtle: rgba(255, 255, 255, 0.5);
-  --glass-border-subtle: rgba(209, 213, 219, 0.3);
+  --glass-background: rgba(220, 230, 255, 0.85);
+  --glass-border: rgba(79, 70, 229, 0.3);
+  --glass-background-subtle: rgba(235, 240, 255, 0.75);
+  --glass-border-subtle: rgba(79, 70, 229, 0.2);
   --btn-primary-start: rgb(67, 56, 202);
   --btn-primary-end: rgb(79, 70, 229);
   --btn-hover-start: rgb(79, 70, 229);
@@ -60,18 +60,18 @@
   --primary-color: rgb(96, 87, 235);
   --primary-light: rgb(134, 127, 247);
   --primary-dark: rgb(84, 68, 214);
-  --text-primary: rgb(224, 240, 255);
-  --text-secondary: rgb(176, 196, 222);
-  --text-tertiary: rgb(132, 151, 176);
-  --glass-background: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.15);
-  --glass-background-subtle: rgba(255, 255, 255, 0.05);
-  --glass-border-subtle: rgba(255, 255, 255, 0.1);
+  --text-primary: rgb(244, 250, 255);
+  --text-secondary: rgb(196, 226, 252);
+  --text-tertiary: rgb(152, 181, 206);
+  --glass-background: rgba(20, 20, 40, 0.9);
+  --glass-border: rgba(93, 93, 255, 0.4);
+  --glass-background-subtle: rgba(30, 30, 50, 0.85);
+  --glass-border-subtle: rgba(93, 93, 255, 0.3);
   --btn-primary-start: rgb(83, 68, 214);
   --btn-primary-end: rgb(96, 87, 235);
   --btn-hover-start: rgb(98, 85, 231);
   --btn-hover-end: rgb(113, 104, 252);
-  --card-background: rgba(15, 23, 42, 0.7);
+  --card-background: rgba(15, 23, 42, 0.9);
   --theme-toggle-from: rgba(40, 40, 120, 0.6);
   --theme-toggle-to: rgba(100, 40, 200, 0.6);
   --theme-toggle-glow: rgba(100, 120, 255, 0.2);
@@ -104,7 +104,7 @@ body {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .glass-effect-subtle {
@@ -113,6 +113,7 @@ body {
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--glass-border-subtle);
   border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 /* Apple-like inputs */
@@ -178,4 +179,25 @@ body {
   );
   background-size: 200% 100%;
   animation: shimmer 2s infinite linear;
+}
+
+/* Text color enhancements for better visibility in dark mode */
+.dark-mode .text-cyan-300 {
+  color: rgb(103, 232, 249); /* Brighter cyan */
+}
+
+.dark-mode .text-cyan-200 {
+  color: rgb(165, 243, 252); /* Even brighter cyan */
+}
+
+.dark-mode .text-yellow-300 {
+  color: rgb(253, 224, 71); /* Brighter yellow */
+}
+
+.dark-mode .text-yellow-200 {
+  color: rgb(254, 240, 138); /* Even brighter yellow */
+}
+
+.dark-mode .text-lime-300 {
+  color: rgb(190, 242, 100); /* Brighter lime */
 } 

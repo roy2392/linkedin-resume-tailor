@@ -11,7 +11,7 @@ const ThemeToggle: React.FC = () => {
   return (
     <motion.button
       onClick={toggleTheme}
-      className="fixed top-6 right-6 z-50 flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r theme-toggle-bg shadow-lg"
+      className="fixed top-4 left-4 z-50 flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r theme-toggle-bg shadow-lg"
       whileTap={{ scale: 0.95 }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -32,9 +32,9 @@ const ThemeToggle: React.FC = () => {
       />
       
       {theme === 'dark' ? (
-        <FiSun className="w-6 h-6 text-yellow-300" />
+        <FiSun className="w-4 h-4 text-yellow-300" />
       ) : (
-        <FiMoon className="w-6 h-6 text-blue-700" />
+        <FiMoon className="w-4 h-4 text-blue-700" />
       )}
     </motion.button>
   );

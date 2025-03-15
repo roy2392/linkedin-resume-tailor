@@ -40,7 +40,7 @@ export default function Home() {
       }
       
       const response = await axios.post(
-        `${process.env.BACKEND_URL}/api/generate-resume`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/generate-resume`,
         payload
       );
       

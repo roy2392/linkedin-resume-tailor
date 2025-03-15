@@ -23,7 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <ThemeProvider>
-          <div className="min-h-screen mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="min-h-screen mx-auto px-2 sm:px-4 lg:px-6 py-4">
             {children}
           </div>
         </ThemeProvider>

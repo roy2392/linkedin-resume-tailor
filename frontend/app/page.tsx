@@ -7,6 +7,7 @@ import InputForm, { FormData } from '@/components/InputForm';
 import OutputDisplay from '@/components/OutputDisplay';
 import LoadingState from '@/components/LoadingState';
 import RobotAssistant from '@/components/RobotAssistant';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -50,6 +51,7 @@ export default function Home() {
   return (
     <main>
       <Header />
+      <ThemeToggle />
       <RobotAssistant />
       
       {!results && !isLoading && (

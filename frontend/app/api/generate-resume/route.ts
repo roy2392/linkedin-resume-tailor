@@ -248,11 +248,4 @@ async function generateResumeWithAnthropic(
   }
 }
 
-export const dynamic = 'force-dynamic';
-
-// Disable authentication for this API route
-export const config = {
-  api: {
-    bodyParser: true,
-  },
-}; 
+export const dynamic = 'force-dynamic'; 

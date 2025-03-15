@@ -60,4 +60,21 @@ docker-compose.override.yml
 .env.local
 .env.development.local
 .env.test.local
-.env.production.local 
+.env.production.local
+
+# Debug and test files
+debug_resume.py
+debug_resume_with_details.py
+debug_resume.log
+test_api_key.py
+test_server.py
+test_validation.html
+test_anthropic_resume.py
+
+# Generated output
+tailored_*.md
+*_interview_prep.md
+*.log
+
+# DB
+db/ 

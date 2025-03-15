@@ -10,9 +10,12 @@ const RobotAssistant: React.FC<RobotAssistantProps> = ({ isActive = true }) => {
   const messages = [
     'Welcome! I\'ll help you tailor your resume.',
     'Just provide your LinkedIn URL and job posting!',
+    'You can use either OpenAI or Anthropic API keys!',
     'Don\'t forget to add your API keys!',
     'I\'ll create a personalized resume just for you!',
     'Need interview preparation? I can help with that too!',
+    'Try both OpenAI and Anthropic to see which works best for you!',
+    'You can switch between light and dark mode for better visibility!'
   ];
 
   useEffect(() => {

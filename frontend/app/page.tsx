@@ -15,6 +15,7 @@ export default function Home() {
   const [results, setResults] = useState<{
     tailoredResume: string;
     interviewMaterials: string;
+    provider: 'openai' | 'anthropic';
   } | null>(null);
 
   const handleSubmit = async (data: FormData) => {
@@ -22,20 +23,31 @@ export default function Home() {
     setError(null);
     
     try {
+      // Create the payload with only the required API key based on provider selection
+      const payload = {
+        serperApiKey: data.serperApiKey,
+        linkedinUrl: data.linkedinUrl,
+        jobPostingUrl: data.jobPostingUrl,
+        personalWriteup: data.personalWriteup,
+        llmProvider: data.llmProvider,
+      };
+      
+      // Add the appropriate API key based on selected provider
+      if (data.llmProvider === 'openai') {
+        Object.assign(payload, { openaiApiKey: data.openaiApiKey });
+      } else if (data.llmProvider === 'anthropic') {
+        Object.assign(payload, { anthropicApiKey: data.anthropicApiKey });
+      }
+      
       const response = await axios.post(
         `${process.env.BACKEND_URL}/api/generate-resume`,
-        {
-          openaiApiKey: data.openaiApiKey,
-          serperApiKey: data.serperApiKey,
-          linkedinUrl: data.linkedinUrl,
-          jobPostingUrl: data.jobPostingUrl,
-          personalWriteup: data.personalWriteup,
-        }
+        payload
       );
       
       setResults({
         tailoredResume: response.data.tailoredResume,
         interviewMaterials: response.data.interviewMaterials,
+        provider: response.data.provider as 'openai' | 'anthropic'
       });
     } catch (err: any) {
       console.error('Error generating resume:', err);
@@ -77,6 +89,7 @@ export default function Home() {
         <OutputDisplay
           tailoredResume={results.tailoredResume}
           interviewMaterials={results.interviewMaterials}
+          provider={results.provider}
         />
       )}
     </main>

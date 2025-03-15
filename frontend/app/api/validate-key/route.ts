@@ -205,4 +205,11 @@ async function validateOpenAIKey(apiKey: string): Promise<[boolean, string | nul
   }
 }
 
-export const dynamic = 'force-dynamic'; 
+export const dynamic = 'force-dynamic';
+
+// Disable authentication for this API route
+export const config = {
+  api: {
+    bodyParser: true,
+  },
+}; 
